@@ -1,12 +1,12 @@
 /*
-===============================================================================
+ ===============================================================================
  Name        : Program.c
  Author      : $(author)
  Version     :
  Copyright   : $(copyright)
  Description : main definition
-===============================================================================
-*/
+ ===============================================================================
+ */
 
 #ifdef __USE_CMSIS
 #include "LPC17xx.h"
@@ -21,26 +21,24 @@
 #include <cr_section_macros.h>
 
 #include "clockSpeed.h"
-#include "timer0.h"
+#include <leds.h>
 
 int main(void) {
 	//set GPU clock higher
-    SpeedUp();
-    //set pin 21 to output
-    FIO0DIR |= 1 << 21;
+	SpeedUp();
 
-    timer0SetPrescaler0(10);
-    timer0SetMatch0(1, 0x03);
-    timer0EnableInterrupt();
-    timer0Start();
+	ledsInit();
 
+	unsigned char temp[] = { 0, 0, 255, 255, 0, 255 };
 
-    while(1){
+	while (1) {
+		ledsSetData(temp, 6);
+		for (int i = 0; i < 6; ++i) {
+			temp[i]++;
+		}
 
-    }
-}
-
-void TIMER0_IRQHandler(){
-	timer0ResetInterrupt();
-	FIO0PIN ^= 1 << 21;
+		for (int time = 0; time < 1000000; ++time) {
+			asm("nop");
+		}
+	}
 }

@@ -59,7 +59,7 @@ void SpeedUp() {
 	PLL0FeedSeq();
 
 	//7. set clock devider
-	CCLKCFG &= ~(255-1);
+	CCLKCFG &= ~(255-0);
 
 	//8. wait until PLL0 is ready
 	//wait more then 500us
