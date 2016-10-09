@@ -27,64 +27,31 @@
  * This can be done by setting PCTIM2/3 in the PCONP
  */
 
-unsigned char* data;
-int size;
-
 void ledsInit() {
 	size = 0;
 
 	//set output pin to output mode
 	FIO0DIR |= OUTPUTPIN;
-
-	//set match
-	T0MR0 = 25;
-
-	//set prescaler
-	T0PR = 100;
-
-	//set timer interupt, autoreset, autostop
-	T0MRC |= (T0MRC & ~0x07) | 0x7;
-
-	//enable interupt
-	ISER0 |= 0x02;
-
-	//start timer
-	T0CR |= 0x01;
 }
 
-void TIMER0_IRQHandler() {
-	T0IR |= 0x01;
-	ledsWrite();
-	T0CR |= 0x01;
-}
-
-void ledsSetData(unsigned char* buffer, int length) {
-	if (size < length) {
-		data = buffer;
-		size = length;
-	} else {
-		size = length;
-		data = buffer;
-	}
-}
-
-void ledsWrite() {
+void ledsSetData(unsigned char* data, int size) {
 	for (int i = 0; i < size; ++i) {
 		int line = data[i];
 		for (int j = 0; j < 8; ++j) {
-			FIO0PIN |= OUTPUTPIN;
+			FIO0PIN &= NOTOUTPUTPIN;
 			if (line & 0x1) {
 				//about 480ns
-				for (int time = 0; time < 8; ++time) {
+				for (int time = 0; time < 5; ++time) {
+					asm("NOP");
 					asm("NOP");
 				}
 
 				//pin LOW
-				FIO0PIN &= NOTOUTPUTPIN;
+				FIO0PIN |= OUTPUTPIN;
 
 				//wait LOW time ()
-				for (int time = 0; time < 1; ++time) {
-					asm("NOP");
+				for (int time = 0; time < 0; ++time) {
+					//asm("NOP");
 				}
 
 				//if last item, reserve some time to go to next item
@@ -93,19 +60,17 @@ void ledsWrite() {
 						asm("NOP");
 					}
 				} else {
-					for (int time = 0; time < 1; ++time) {
+					for (int time = 0; time < 0; ++time) {
 					}
 				}
 
 			} else {
-				//TODO: fine tune
-				for (int time = 0; time < 3; ++time) {
+				for (int time = 0; time < 1; ++time) {
 					asm("NOP");
 				}
 
-				FIO0PIN &= NOTOUTPUTPIN;
+				FIO0PIN |= OUTPUTPIN;
 
-				//TODO: fine tune
 				for (int time = 0; time < 3; ++time) {
 					asm("NOP");
 				}
@@ -116,7 +81,7 @@ void ledsWrite() {
 						asm("NOP");
 					}
 				} else {
-					for (int time = 0; time < 1; ++time) {
+					for (int time = 0; time < 0; ++time) {
 					}
 				}
 			}

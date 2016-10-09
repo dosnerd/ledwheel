@@ -9,7 +9,6 @@
 #define LEDS_H_
 
 void ledsInit(void);
-void ledsWrite();
 void ledsSetData(unsigned char*, int);
 void TIMER0_IRQHandler(void);
 

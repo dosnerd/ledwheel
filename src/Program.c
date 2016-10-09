@@ -29,15 +29,15 @@ int main(void) {
 
 	ledsInit();
 
-	unsigned char temp[] = { 0, 0, 255, 255, 0, 255 };
+	unsigned char temp[] = { 255, 0, 255, 255, 0, 255 };
 
 	while (1) {
 		ledsSetData(temp, 6);
-		for (int i = 0; i < 6; ++i) {
+		/*for (int i = 0; i < 6; ++i) {
 			temp[i]++;
-		}
+		}*/
 
-		for (int time = 0; time < 1000000; ++time) {
+		for (int time = 0; time < 10000000; ++time) {
 			asm("nop");
 		}
 	}
