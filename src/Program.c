@@ -21,6 +21,7 @@
 #include <cr_section_macros.h>
 
 #include "clockSpeed.h"
+#include "magnets.h"
 #include <leds.h>
 
 void setLed(char, char, char, unsigned char *, unsigned int *, int);
@@ -29,6 +30,7 @@ int main(void) {
 	//set GPU clock higher
 	SpeedUp();
 
+	magnet0Init();
 	ledsInit();
 
 	//unsigned char temp[] = { 0, 0, 0, 0, 0, 0, 255, 255, 255};
