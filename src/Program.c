@@ -12,24 +12,22 @@
 #include "LPC17xx.h"
 #endif
 
-//temp
-#define FIO0DIR (*(unsigned int *)0x2009C000)	//GPIO direction
-#define FIO0SET (*(unsigned int *)0x2009C018)	//GPIO set (can make pin high)
-#define FIO0CLR (*(unsigned int *)0x2009C01C)	//GPIO clear (can make pin low)
-#define FIO0PIN (*(unsigned int *)0x2009C014)	//GPIO value (can read and write pin) (write careful! Will effect whole port)
-
 #include <cr_section_macros.h>
 
 #include "clockSpeed.h"
 #include "magnets.h"
 #include <leds.h>
 
+#define LEDHIGH 255
+
 void setLed(char, char, char, unsigned char *, unsigned int *, int);
 
 int main(void) {
+	char lijn = 0;
 	//set GPU clock higher
 	SpeedUp();
 
+	propertySelectLine(&lijn);
 	magnet0Init();
 	ledsInit();
 
@@ -43,19 +41,25 @@ int main(void) {
 	temp[0] = 0;
 
 	while (1) {
-		setLed(10, 0, 0, temp, &counter, 48 * 2 * 3);
-		setLed(10, 10, 10, temp, &counter, 48 * 2 * 3);
-		setLed(0, 0, 10, temp, &counter, 48 * 2 * 3);
+		if (lijn) {
+			setLed(LEDHIGH, 0, 0, temp, &counter, 48 * 2 * 3);
+			setLed(LEDHIGH, LEDHIGH, LEDHIGH, temp, &counter, 48 * 2 * 3);
+			setLed(0, 0, LEDHIGH, temp, &counter, 48 * 2 * 3);
 
-		ledsSetData(temp, (48 * 2) * 3);
+			ledsSetData(temp, (48 * 2) * 3);
 
-		counter -= 9;
-		setLed(0, 0, 0, temp, &counter, 48 * 2 * 3);
-		setLed(0, 0, 0, temp, &counter, 48 * 2 * 3);
-		setLed(0, 0, 0, temp, &counter, 48 * 2 * 3);
+			if (counter == 0) {
+				counter = (48 * 2 * 3) - 1;
+			}
 
-		for (int time = 0; time < 100000; ++time) {
-			asm("nop");
+			counter -= 9;
+			setLed(0, 0, 0, temp, &counter, 48 * 2 * 3);
+			setLed(0, 0, 0, temp, &counter, 48 * 2 * 3);
+			setLed(0, 0, 0, temp, &counter, 48 * 2 * 3);
+
+			for (int time = 0; time < 100000; ++time) {
+				asm("nop");
+			}
 		}
 	}
 }
