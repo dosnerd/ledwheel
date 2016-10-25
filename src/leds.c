@@ -4,13 +4,13 @@
  *  Created on: 6 okt. 2016
  *      Author: Acer
  */
-#define OUTPUTPIN 0x00200000
-#define NOTOUTPUTPIN 0xFFDFFFFF
+#define OUTPUTPIN 0x00000080
+#define NOTOUTPUTPIN 0xFFFFFF7F
 
-#define FIO0DIR (*(unsigned int *)0x2009C000)	//GPIO direction
-#define FIO0SET (*(unsigned int *)0x2009C018)	//GPIO set (can make pin high)
-#define FIO0CLR (*(unsigned int *)0x2009C01C)	//GPIO clear (can make pin low)
-#define FIO0PIN (*(unsigned int *)0x2009C014)	//GPIO value (can read and write pin) (write careful! Will effect whole port)
+#define FIO0DIR (*(unsigned int *)0x2009C040)	//GPIO direction
+#define FIO0SET (*(unsigned int *)0x2009C058)	//GPIO set (can make pin high)
+#define FIO0CLR (*(unsigned int *)0x2009C05C)	//GPIO clear (can make pin low)
+#define FIO0PIN (*(unsigned int *)0x2009C054)	//GPIO value (can read and write pin) (write careful! Will effect whole port)
 
 #define T0 0x40004000				//timer0
 #define T0IR (*(int *)(T0))			//Interrupt register
@@ -28,7 +28,7 @@
  */
 
 void ledsInit() {
-	size = 0;
+	//size = 0;
 
 	//set output pin to output mode
 	FIO0DIR |= OUTPUTPIN;
@@ -41,7 +41,7 @@ void ledsSetData(unsigned char* data, int size) {
 			FIO0PIN &= NOTOUTPUTPIN;
 			if (line & 0x1) {
 				//about 480ns
-				for (int time = 0; time < 5; ++time) {
+				for (int time = 0; time < 7; ++time) {
 					asm("NOP");
 					asm("NOP");
 				}
@@ -49,29 +49,24 @@ void ledsSetData(unsigned char* data, int size) {
 				//pin LOW
 				FIO0PIN |= OUTPUTPIN;
 
-				//wait LOW time ()
-				for (int time = 0; time < 0; ++time) {
-					//asm("NOP");
-				}
-
 				//if last item, reserve some time to go to next item
 				if (j < 7) {
-					for (int time = 0; time < 3; ++time) {
+					for (int time = 0; time < 1; ++time) {
 						asm("NOP");
 					}
 				} else {
-					for (int time = 0; time < 0; ++time) {
-					}
+//					for (int time = 0; time < 0; ++time) {
+//					}
 				}
 
 			} else {
-				for (int time = 0; time < 1; ++time) {
+				for (int time = 0; time < 2; ++time) {
 					asm("NOP");
 				}
 
 				FIO0PIN |= OUTPUTPIN;
 
-				for (int time = 0; time < 3; ++time) {
+				for (int time = 0; time < 2; ++time) {
 					asm("NOP");
 				}
 
