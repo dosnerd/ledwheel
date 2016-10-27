@@ -17,6 +17,12 @@
 #define IO2IntClr (*(unsigned int *)0x400280AC)	//GPIO interupt clear
 #define ISER0  (*(unsigned int *)0xE000E100)	//Interrupt set-enable register
 
+#include "timeRecorder.h"
+#include "timing.h"
+
+char side = 0;
+int timeline = 0;
+
 void magnet0Init() {
 	//set direction
 	FI20DIR &= ~MAGNET0;
@@ -31,17 +37,25 @@ void magnet0Init() {
 	ISER0 |= 0x200000; //bit 21
 }
 
-char* propertySelectLine(char * lijn) {
-	static char * data;
-	if (lijn != 0) {
-		data = lijn;
-	}
-
-	return data;
-}
-
 void EINT3_IRQHandler() {
 	IO2IntClr |= MAGNET0;
 	IO2IntClr |= MAGNET1;
-	(*propertySelectLine(0)) ^= 1;
+
+	int val = timeRecorderValue();
+	if (val / 48 > 150) {
+		timingStop();
+		if (FIO2PIN & MAGNET1) {
+			(*propertySelectLine(0)) = 48;
+		} else {
+			(*propertySelectLine(0)) = 0;
+		}
+		timingReset();
+
+		timingSetGetAcc((val - timeline) / 48);
+		timeline = val;
+
+		timingSetMatch(val / 48);
+		timingStart();
+		timeRecorderReset();
+	}
 }

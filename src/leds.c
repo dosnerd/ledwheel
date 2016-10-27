@@ -35,7 +35,26 @@ void ledsInit() {
 }
 
 void ledsSetData(unsigned char* data, int size) {
-	for (int i = 0; i < size; ++i) {
+	int top = size / 2;
+
+	for (int i = 0; i < 288; i += 3) {
+		if (i < 48 * 3) {
+			unsigned char temp = data[i];
+			data[i] = data[i + 1];
+			data[i + 1] = temp;
+		} else {
+			unsigned char r = data[i];
+			unsigned char g = data[i + 1];
+			unsigned char b = data[i + 2];
+
+			data[i] = b;
+			data[i + 1] = r;
+			data[i + 2] = g;
+		}
+	}
+
+	//top
+	for (int i = 0; i < top; ++i) {
 		int line = data[i];
 		for (int j = 0; j < 8; ++j) {
 			FIO0PIN &= NOTOUTPUTPIN;
@@ -57,6 +76,56 @@ void ledsSetData(unsigned char* data, int size) {
 				} else {
 //					for (int time = 0; time < 0; ++time) {
 //					}
+				}
+
+			} else {
+				for (int time = 0; time < 2; ++time) {
+					asm("NOP");
+				}
+
+				FIO0PIN |= OUTPUTPIN;
+
+				for (int time = 0; time < 2; ++time) {
+					asm("NOP");
+				}
+
+				//if last item, reserve some time to go to next item
+				if (j < 7) {
+					for (int time = 0; time < 3; ++time) {
+						asm("NOP");
+					}
+				} else {
+					for (int time = 0; time < 0; ++time) {
+					}
+				}
+			}
+			line >>= 1;
+		}
+	}
+
+//bottom
+	for (int i = size - 1; i >= top; --i) {
+		int line = data[i];
+		for (int j = 0; j < 8; ++j) {
+			FIO0PIN &= NOTOUTPUTPIN;
+			if (line & 0x1) {
+				//about 480ns
+				for (int time = 0; time < 7; ++time) {
+					asm("NOP");
+					asm("NOP");
+				}
+
+				//pin LOW
+				FIO0PIN |= OUTPUTPIN;
+
+				//if last item, reserve some time to go to next item
+				if (j < 7) {
+					for (int time = 0; time < 1; ++time) {
+						asm("NOP");
+					}
+				} else {
+					//					for (int time = 0; time < 0; ++time) {
+					//					}
 				}
 
 			} else {

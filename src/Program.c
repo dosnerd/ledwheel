@@ -15,68 +15,68 @@
 #include <cr_section_macros.h>
 
 #include "clockSpeed.h"
+#include "timing.h"
+#include "timeRecorder.h"
 #include "magnets.h"
-#include <leds.h>
+#include "leds.h"
+#include "image.h"
 
-#define LEDHIGH 255
-
-void setLed(char, char, char, unsigned char *, unsigned int *, int);
+void clear(void);
 
 int main(void) {
-	char lijn = 0;
+	int line = 0;
+	int counter = 0;
+	//unsigned char image[96 * 96 * 3];
+	unsigned char dataLine[288];
+	unsigned char *pDataline = dataLine; //&dataLine give warning, &pDataline will not
+
+	//set properties
+	propertySelectLine(&line);
+	propertyLine(&pDataline);
 	//set GPU clock higher
 	SpeedUp();
 
-	propertySelectLine(&lijn);
+	timeRecorderInit(1000);
+	timingInit(1000);
 	magnet0Init();
 	ledsInit();
 
-	//unsigned char temp[] = { 0, 0, 0, 0, 0, 0, 255, 255, 255};
-	unsigned char temp[(48 * 2) * 3];
-	unsigned int counter = 0;
-	for (int i = 0; i < (48 * 2) * 3; ++i) {
-		temp[i] = 0;
-	}
+	//turn off all leds
+	clear();
 
-	temp[0] = 0;
+	//start record timer and update timer with a standard value
+	timeRecorderStart();
+	timingSetMatch(10000);
+	timingStart();
 
 	while (1) {
-		if (lijn) {
-			setLed(LEDHIGH, 0, 0, temp, &counter, 48 * 2 * 3);
-			setLed(LEDHIGH, LEDHIGH, LEDHIGH, temp, &counter, 48 * 2 * 3);
-			setLed(0, 0, LEDHIGH, temp, &counter, 48 * 2 * 3);
-
-			ledsSetData(temp, (48 * 2) * 3);
-
-			if (counter == 0) {
-				counter = (48 * 2 * 3) - 1;
-			}
-
-			counter -= 9;
-			setLed(0, 0, 0, temp, &counter, 48 * 2 * 3);
-			setLed(0, 0, 0, temp, &counter, 48 * 2 * 3);
-			setLed(0, 0, 0, temp, &counter, 48 * 2 * 3);
-
-			for (int time = 0; time < 100000; ++time) {
-				asm("nop");
+		//when new line needs to be loaded
+		if (line != counter) {
+			if (line < 96) {
+				counter = line;
+				int bottomLine = (counter + 48) % 96;
+				for (int i = 0; i < 48; ++i) {
+					//three colors
+					for (int j = 0; j < 3; ++j) {
+						dataLine[i * 3 + j] =
+								image[i * 96 * 3 + counter * 3 + j];
+						dataLine[(i + 48) * 3 + j] = image[i * 96 * 3
+								+ bottomLine * 3 + j];
+					}
+				}
+			} else {
+				line = counter;
 			}
 		}
 	}
 }
 
-void setLed(char r, char g, char b, unsigned char * array,
-		unsigned int *counter, int size) {
-	if (*counter >= size) {
-		*counter = 0;
+void clear() {
+	unsigned char temp[48 * 2 * 3];
+	//for (int i = 0; i < (48 * 2) * 3; ++i) {
+	for (int i = 0; i < 48 * 2 * 3; ++i) {
+		temp[i] = 0;
 	}
-
-	array[*counter] = g;
-	array[*counter + 1] = r;
-	array[*counter + 2] = b;
-	*counter += 3;
-
-	if (*counter >= size) {
-		*counter = 0;
-	}
+	ledsSetData(temp, (48 * 2) * 3);
 }
 

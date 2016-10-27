@@ -9,6 +9,5 @@
 #define MAGNETS_H_
 
 void magnet0Init(void);
-char* propertySelectLine(char*);
 
 #endif /* MAGNETS_H_ */
