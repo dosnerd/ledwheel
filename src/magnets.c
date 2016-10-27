@@ -42,20 +42,24 @@ void EINT3_IRQHandler() {
 	IO2IntClr |= MAGNET1;
 
 	int val = timeRecorderValue();
-	if (val / 48 > 150) {
-		timingStop();
+	//if (val / 48 > 50) {
+	if ((side && (FIO2PIN & MAGNET1)) || (!side && (FIO2PIN & MAGNET0))) {
+
+		side = (FIO2PIN & MAGNET1) == 0;
 		if (FIO2PIN & MAGNET1) {
-			(*propertySelectLine(0)) = 48;
+			//(*propertySelectLine(0)) = 48;
 		} else {
+			timingStop();
 			(*propertySelectLine(0)) = 0;
+
+			timingReset();
+
+			timingSetGetAcc((val - timeline) / (48 * 2));
+			timeline = val;
+
+			timingSetMatch(val / (48 * 2));
+			timingStart();
+			timeRecorderReset();
 		}
-		timingReset();
-
-		timingSetGetAcc((val - timeline) / 48);
-		timeline = val;
-
-		timingSetMatch(val / 48);
-		timingStart();
-		timeRecorderReset();
 	}
 }

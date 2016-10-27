@@ -19,7 +19,7 @@
 #include "timeRecorder.h"
 #include "magnets.h"
 #include "leds.h"
-#include "image.h"
+#include "avans.h"
 
 void clear(void);
 
@@ -36,8 +36,8 @@ int main(void) {
 	//set GPU clock higher
 	SpeedUp();
 
-	timeRecorderInit(1000);
-	timingInit(1000);
+	timeRecorderInit(500);
+	timingInit(500);
 	magnet0Init();
 	ledsInit();
 
@@ -60,8 +60,9 @@ int main(void) {
 					for (int j = 0; j < 3; ++j) {
 						dataLine[i * 3 + j] =
 								image[i * 96 * 3 + counter * 3 + j];
-						dataLine[(i + 48) * 3 + j] = image[i * 96 * 3
-								+ bottomLine * 3 + j];
+						dataLine[(i + 48) * 3 + j] =
+								0;
+								//image[i * 96 * 3 + bottomLine * 3 + j];
 					}
 				}
 			} else {

@@ -102,7 +102,7 @@ void TIMER0_IRQHandler() {
 
 
 	//update acceleration
-	if (T0MR0 + timingSetGetAcc(0) > 150) {
+	//if (T0MR0 + timingSetGetAcc(0) > 0) {
 		T0MR0 += timingSetGetAcc(0);
-	}
+	//}
 }
