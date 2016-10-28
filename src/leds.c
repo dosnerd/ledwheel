@@ -6,6 +6,8 @@
  */
 #define OUTPUTPIN 0x00000080
 #define NOTOUTPUTPIN 0xFFFFFF7F
+#define LOCK 0
+#define FREE 1
 
 #define FIO0DIR (*(unsigned int *)0x2009C040)	//GPIO direction
 #define FIO0SET (*(unsigned int *)0x2009C058)	//GPIO set (can make pin high)
@@ -34,8 +36,24 @@ void ledsInit() {
 	FIO0DIR |= OUTPUTPIN;
 }
 
+char lock(char free) {
+	static char state;
+	if (free == FREE) {
+		state = 0;
+	} else if (state) {
+		return 1;
+	} else {
+		state = 1;
+		return 0;
+	}
+}
+
 void ledsSetData(unsigned char* data, int size) {
 	int top = size / 2;
+
+	if (lock(LOCK)) {
+		return;
+	}
 
 	for (int i = 0; i < 288; i += 3) {
 		if (i < 48 * 3) {
@@ -152,5 +170,7 @@ void ledsSetData(unsigned char* data, int size) {
 			line >>= 1;
 		}
 	}
+
+	lock(FREE);
 }
 

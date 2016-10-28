@@ -5,7 +5,7 @@
  *      Author: Acer
  */
 
-#define T0 0x40004000				//timer0
+#define T0 0x40090000				//timer0
 #define T0IR (*(int *)(T0))			//Interrupt register
 #define T0CR (*(int *)(T0 + 0x04))	//control register
 #define T0TC (*(int *)(T0 + 0x08))	//Timer Counter register
@@ -15,6 +15,7 @@
 #define ISER0 (*(int *)(0xE000E100))	//Interrupt Set-Enable Register 0
 
 #define IPR0 (*(int *)(0xE000E400))
+#define PCONP (*(int *)(0x400FC0C4))
 
 /*
  * NOTE:
@@ -23,9 +24,12 @@
  */
 
 #include "leds.h"
-#include "timing2.h"
+#include "timing.h"
 
-void timingInit(int prescaler) {
+void timing2Init(int prescaler) {
+	//turn on timer 2
+	PCONP |= 0x400000;
+
 	//set prescaler
 	T0PR = prescaler;
 
@@ -33,16 +37,16 @@ void timingInit(int prescaler) {
 	T0MRC |= (T0MRC & ~0x07) | 0x03;
 
 	//enable interrupt
-	ISER0 |= 0x02;
+	ISER0 |= 0x08;
 
 	//set standard value for interrupt
 	T0MR0 = 50000;
 
-	//set to a low prior
-	IPR0 |= 0xE000;
+	//set to a lower prior
+	IPR0 |= 0xF0000000;
 }
 
-int* propertySelectLine(int * lijn) {
+int* propertySelectLine2(int * lijn) {
 	static int * data;
 	if (lijn != 0) {
 		data = lijn;
@@ -51,15 +55,7 @@ int* propertySelectLine(int * lijn) {
 	return data;
 }
 
-unsigned char** propertyLine(unsigned char** dataline) {
-	static unsigned char ** data;
-	if (dataline != 0) {
-		data = dataline;
-	}
-	return data;
-}
-
-int timingSetGetAcc(int acc) {
+int timing2SetGetAcc(int acc) {
 	static int data;
 	if (acc != 0) {
 		data = acc;
@@ -68,43 +64,40 @@ int timingSetGetAcc(int acc) {
 	return data;
 }
 
-void timingResetInterrupt() {
+void timing2ResetInterrupt() {
 	//writing high will reset interrupt flag
 	T0IR |= 0x01;
 }
 
-void timingStart() {
+void timing2Start() {
 	T0CR |= 0x01;
 }
 
-void timingStop() {
+void timing2Stop() {
 	T0CR &= ~0x01;
 }
 
-void timingReset() {
+void timing2Reset() {
 	T0CR |= 0x02;
 	T0CR &= ~0x02;
 }
 
-void timingSetMatch(int value) {
+void timing2SetMatch(int value) {
 	T0MR0 = value;
 }
 
-void TIMER0_IRQHandler() {
-	timingResetInterrupt();
+void TIMER2_IRQHandler() {
+	timing2ResetInterrupt();
 
 	//update (new) line
-	unsigned char* dataline = *propertyLine(0);
-	ledsSetData(dataline, 288); //(48 * 2) * 3 = 288
+//	unsigned char* dataline = *propertyLine(0);
+//	ledsSetData(dataline, 288); //(48 * 2) * 3 = 288
 
 	//select next line
-	(*propertySelectLine(0))++;
 	(*propertySelectLine2(0))++;
-
-
 
 	//update acceleration
 	//if (T0MR0 + timingSetGetAcc(0) > 0) {
-		T0MR0 += timingSetGetAcc(0);
+	T0MR0 += timing2SetGetAcc(0);
 	//}
 }
