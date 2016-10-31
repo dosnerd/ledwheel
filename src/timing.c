@@ -23,7 +23,6 @@
  */
 
 #include "leds.h"
-#include "timing2.h"
 
 void timingInit(int prescaler) {
 	//set prescaler
@@ -43,6 +42,15 @@ void timingInit(int prescaler) {
 }
 
 int* propertySelectLine(int * lijn) {
+	static int * data;
+	if (lijn != 0) {
+		data = lijn;
+	}
+
+	return data;
+}
+
+int* propertySelectLine2(int * lijn) {
 	static int * data;
 	if (lijn != 0) {
 		data = lijn;
@@ -90,6 +98,10 @@ void timingSetMatch(int value) {
 	T0MR0 = value;
 }
 
+int timingValue() {
+	return T0TC;
+}
+
 void TIMER0_IRQHandler() {
 	timingResetInterrupt();
 
@@ -100,11 +112,4 @@ void TIMER0_IRQHandler() {
 	//select next line
 	(*propertySelectLine(0))++;
 	(*propertySelectLine2(0))++;
-
-
-
-	//update acceleration
-	//if (T0MR0 + timingSetGetAcc(0) > 0) {
-		T0MR0 += timingSetGetAcc(0);
-	//}
 }

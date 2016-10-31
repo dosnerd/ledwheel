@@ -19,7 +19,6 @@
 
 #include "timeRecorder.h"
 #include "timing.h"
-#include "timing2.h"
 
 char side = 0;
 int timeline = 0;
@@ -45,26 +44,14 @@ void EINT3_IRQHandler() {
 	IO2IntClr |= MAGNET1;
 
 	int val = timeRecorderValue();
-	//if (val / 48 > 50) {
 	if ((side && (FIO2PIN & MAGNET1)) || (!side && (FIO2PIN & MAGNET0))) {
-
 		side = (FIO2PIN & MAGNET1) == 0;
 		if (FIO2PIN & MAGNET1) {
-			//(*propertySelectLine(0)) = 48;
-
 			val += prevVal;
 			prevVal = val - prevVal;
+			(*propertySelectLine2(0)) = 4;
 
-			timing2Stop();
-			(*propertySelectLine2(0)) = 5;
-
-			timing2Reset();
-
-			timing2SetGetAcc((val - timeline2) / (48 * 2));
 			timeline2 = val;
-
-			timing2SetMatch(val / (48 * 2));
-			//timing2Start();
 			timeRecorderReset();
 		} else {
 			val += prevVal;

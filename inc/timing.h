@@ -15,9 +15,11 @@ void timingStop();
 void timingReset();
 void timingSetMatch(int);
 int timingSetGetAcc(int);
+int timingValue();
 
 void TIMER0_IRQHandler(void);
 char* propertySelectLine(int*);
+char* propertySelectLine2(int*);
 unsigned char** propertyLine(unsigned char**);
 
 #endif /* TIMING_H_ */

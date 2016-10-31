@@ -16,11 +16,10 @@
 
 #include "clockSpeed.h"
 #include "timing.h"
-#include "timing2.h"
 #include "timeRecorder.h"
 #include "magnets.h"
 #include "leds.h"
-#include "avans.h"
+#include "test.h"
 
 void clear(unsigned char *);
 
@@ -45,7 +44,6 @@ int main(void) {
 
 	timeRecorderInit(500);
 	timingInit(500);
-	timing2Init(500);
 	magnet0Init();
 	ledsInit();
 
@@ -54,11 +52,9 @@ int main(void) {
 
 	//start record timer and update timer with a standard value
 	timingSetMatch(10000);
-	timing2SetMatch(10000);
 
 	timeRecorderStart();
 	timingStart();
-	timing2Start();
 
 	while (1) {
 		//when new line needs to be loaded
@@ -80,8 +76,7 @@ int main(void) {
 				for (int i = 0; i < 48; ++i) {
 					//three colors
 					for (int j = 0; j < 3; ++j) {
-						dataLine[(i + 48) * 3 + j] = image[i * 96 * 3 + 94 * 3
-								+ j];
+						dataLine[i * 3 + j] = 0;
 					}
 				}
 				line = counter;
@@ -95,19 +90,19 @@ int main(void) {
 				for (int i = 0; i < 48; ++i) {
 					//three colors
 					for (int j = 0; j < 3; ++j) {
-						dataLine[(i + 48) * 3 + j] = image[i * 96 * 3
-								+ counter2 * 3 + j];
+						dataLine[(i + 48) * 3 + j] = //0;
+								image[i * 96 * 3 + counter2 * 3 + j];
 					}
 				}
 			} else {
+				line2 = counter2;
 				for (int i = 0; i < 48; ++i) {
-					//three colors
+					//thr.ee colors
 					for (int j = 0; j < 3; ++j) {
-						dataLine[(i + 48) * 3 + j] = image[i * 96 * 3 + 94 * 3
-								+ j];
+						dataLine[(i + 48) * 3 + j] = 0;
+						//image[i * 96 * 3 + 94 * 3+ j];
 					}
 				}
-				timing2Stop();
 			}
 		}
 	}
