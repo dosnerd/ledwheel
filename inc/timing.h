@@ -9,13 +9,12 @@
 #define TIMING_H_
 
 void timingInit(int);
-void timingResetInterrupt();
-void timingStart();
-void timingStop();
-void timingReset();
+void timingResetInterrupt(void);
+void timingStart(void);
+void timingStop(void);
+void timingReset(void);
 void timingSetMatch(int);
-int timingSetGetAcc(int);
-int timingValue();
+int timingValue(void);
 
 void TIMER0_IRQHandler(void);
 char* propertySelectLine(int*);

@@ -62,7 +62,6 @@ void EINT3_IRQHandler() {
 
 			timingReset();
 
-			timingSetGetAcc((val - timeline) / (48 * 2));
 			timeline = val;
 
 			timingSetMatch(val / (48 * 2));

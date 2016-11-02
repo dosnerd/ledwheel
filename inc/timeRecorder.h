@@ -10,13 +10,13 @@
 
 void timeRecorderInit(int);
 
-void timeRecorderStart();
+void timeRecorderStart(void);
 
-void timeRecorderStop();
+void timeRecorderStop(void);
 
-void timeRecorderReset();
+void timeRecorderReset(void);
 
-int timeRecorderValue();
+int timeRecorderValue(void);
 
 
 #endif /* TIMERECORDER_H_ */
