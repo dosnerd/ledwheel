@@ -9,5 +9,6 @@
 #define MAGNETS_H_
 
 void magnet0Init(void);
+void EINT3_IRQHandler(void);
 
 #endif /* MAGNETS_H_ */
