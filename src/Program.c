@@ -27,7 +27,6 @@ void clear(unsigned char *);
 int main(void) {
 	int line = 0;
 	int counter = 0;
-
 	int line2 = 0;
 	int counter2 = 0;
 
@@ -36,7 +35,7 @@ int main(void) {
 	IMAGE_DATA imageMemory;
 	IMAGE_DATA imageData;
 
-	//set properties
+	//set properties, so it can be used in interrupts without global variables
 	propertySelectLine2(&line2);
 	propertySelectLine(&line);
 	propertyLine(&pDataline);
@@ -55,61 +54,47 @@ int main(void) {
 	//turn off all leds
 	clear(dataLine);
 
-	//imageData = getCurrentImage();
-
 	//start record timer and update timer with a standard value
 	timingSetMatch(10000);
 
+	//start timers
 	timeRecorderStart();
 	timingStart();
 	timer2Start();
 
 	while (1) {
+		//save current image, so image doesn't change while loading it to the strips
 		imageData = getCurrentImage();
+
 		//when new line needs to be loaded
 		if (line != counter) {
+			//save value in separate variable, so in line change, counter doens't
+			counter = line;
+			counter2 = line2;
 
-			if (line < 96) {
-				counter = line;
-				for (int i = 0; i < 48; ++i) {
-					//three colors
-					for (int j = 0; j < 3; ++j) {
+			//load both strips
+			for (int i = 0; i < 48; ++i) {
+				//three colors
+				for (int j = 0; j < 3; ++j) {
+					//load strip 1
+					if (line < 96) {
 						dataLine[i * 3 + j] = imageData.image[i * 96 * 3
 								+ counter * 3 + j];
-
-					}
-				}
-			} else {
-				for (int i = 0; i < 48; ++i) {
-					//three colors
-					for (int j = 0; j < 3; ++j) {
+					} else {
 						dataLine[i * 3 + j] = 0;
 					}
-				}
-				line = counter;
-			}
-		}
 
-		//when new line needs to be loaded
-		if (line2 != counter2) {
-			if (line2 < 96) {
-				counter2 = line2;
-				for (int i = 0; i < 48; ++i) {
-					//three colors
-					for (int j = 0; j < 3; ++j) {
-						dataLine[(i + 48) * 3 + j] = //0;
-								imageData.image[i * 96 * 3 + counter2 * 3 + j];
-					}
-				}
-			} else {
-				line2 = counter2;
-				for (int i = 0; i < 48; ++i) {
-					//thr.ee colors
-					for (int j = 0; j < 3; ++j) {
+					//load strip 2
+					if (line2 < 96) {
+						dataLine[(i + 48) * 3 + j] = imageData.image[i * 96 * 3
+								+ counter2 * 3 + j];
+					} else {
 						dataLine[(i + 48) * 3 + j] = 0;
 					}
+
 				}
 			}
+
 		}
 	}
 }
